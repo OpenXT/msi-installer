@@ -1,0 +1,8 @@
+#Add an entry to .gitconfig:
+#[diff "localizablestrings"]
+#	textconv = "convert_utf16_to_unix"
+#And put convert_utf16_to_unix on PATH containing:
+#iconv -f UTF-16 -t UTF-8 $1 | dos2unix
+
+*.ps1 diff=localizablestrings
+
