@@ -97,27 +97,6 @@
              SourceFile=".\Modules\XenGuestAgent.msm"
              DiskId="1" />
 
-      <!-- VC80 C RunTime -->
-      <?if $(var.Platform) = "x86"?>
-        <Merge Id="VC80CRT" 
-               Language="1033"
-               SourceFile="$(env.CommonProgramFiles)\Merge Modules\Microsoft_VC80_CRT_x86.msm" 
-               DiskId="2" />
-        <Merge Id="policy_VC80CRT" 
-               Language="1033"
-               SourceFile="$(env.CommonProgramFiles)\Merge Modules\policy_8_0_Microsoft_VC80_CRT_x86.msm"
-               DiskId="2" />
-      <?else ?>
-        <Merge Id="VC80CRT" 
-               Language="1033"
-               SourceFile="$(env.CommonProgramFiles)\Merge Modules\Microsoft_VC80_CRT_x86_x64.msm" 
-               DiskId="2" />
-        <Merge Id="policy_VC80CRT" 
-               Language="1033"
-               SourceFile="$(env.CommonProgramFiles)\Merge Modules\policy_8_0_Microsoft_VC80_CRT_x86_x64.msm" 
-               DiskId="2" />
-      <?endif ?>
-
 	  <!-- 32 Bit Prog Files folder -->
       <Directory Id="ProgramFilesFolder" Name="PFiles">
 
@@ -186,10 +165,6 @@
 	  <!-- Registry Components -->
 	  <ComponentRef Id="xensetup" />
 	  <ComponentRef Id="wlanprofLaunchKey" />
-	 
-	  <!-- Visual Studio 2005 C Runtime -->
-      <MergeRef Id="VC80CRT" />
-      <MergeRef Id="policy_VC80CRT" />
 
 	  <!-- XenGuest Graphical Agent -->
 	  <MergeRef Id ="XenGuestAgentMSM"/>
