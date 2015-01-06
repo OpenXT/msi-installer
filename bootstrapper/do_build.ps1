@@ -25,6 +25,7 @@ $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[
 $BuildType = $argtable["BuildType"]
 $CertName = $argtable["CertName"]
 $VerString = $argtable["VerString"]
+$signtool = $argtable["SignTool"]
 
 Push-Location msi-installer\bootstrapper
 makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
@@ -33,7 +34,7 @@ makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
 if ($BuildType -eq "Release")
 {
     Write-Host "Signing setup.exe"
-    signtool.exe sign /a /s my /n $CertName /t http://timestamp.verisign.com/scripts/timestamp.dll /d "XenClient Installer" setup.exe
+    ($signtool+"\signtool.exe") sign /a /s my /n $CertName /t http://timestamp.verisign.com/scripts/timestamp.dll /d "XenClient Installer" setup.exe
 }
 
 Move-Item setup.exe ..\iso\windows\setup.exe -Force -Verbose
