@@ -34,7 +34,7 @@ makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
 if ($BuildType -eq "Release")
 {
     Write-Host "Signing setup.exe"
-    ($signtool+"\signtool.exe") sign /a /s my /n $CertName /t http://timestamp.verisign.com/scripts/timestamp.dll /d "XenClient Installer" setup.exe
+    Invoke-CommandChecked "Signing setup.exe" ($signtool+"\signtool.exe") sign /a /s my /n ('"'+$certname+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "XenClient Installer" setup.exe
 }
 
 Move-Item setup.exe ..\iso\windows\setup.exe -Force -Verbose
