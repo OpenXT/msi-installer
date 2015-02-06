@@ -41,8 +41,7 @@ ver | find " 5.1" > nul
 IF %ERRORLEVEL% == 0 (set XP=1) ELSE (set XP=0)
 
 IF %XP% == 0 (
-certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\cit.cer"
-certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\cit2.cer"
+certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\ToolsSigner.cer"
 ) ELSE (
 start "HardwareWizardKiller" /min cscript "%~dp0SupportFiles\WizardKiller.vbs"
 )
