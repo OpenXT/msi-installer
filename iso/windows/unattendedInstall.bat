@@ -41,8 +41,7 @@ ver | find " 5.1" > nul
 IF %ERRORLEVEL% == 0 (set XP=1) ELSE (set XP=0)
 
 IF %XP% == 0 (
-certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\cit.cer"
-certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\cit2.cer"
+certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\ToolsSigner.cer"
 ) ELSE (
 start "HardwareWizardKiller" /min cscript "%~dp0SupportFiles\WizardKiller.vbs"
 )
@@ -58,8 +57,8 @@ IF "%1" == "/DR" set RESTART=0
 IF %ERRORLEVEL% NEQ 0 set RESTART=0
 
 IF %XP% == 0 (
-certutil -delstore -enterprise "TrustedPublisher" "1dced972d082a6a82ca2a99fbcea3a95"
-certutil -delstore -enterprise "TrustedPublisher" "6d589bf235caa049ca618dc4c2489a82"
+FOR /F "Tokens=3" %%I in ('certutil -dump "%~dp0SupportFiles\ToolsSigner.cer" ^| findstr "Serial Number"') do SET SERIAL=%%I
+certutil -delstore -enterprise "TrustedPublisher" %SERIAL%
 ) ELSE (
 taskkill.exe /f /fi "Windowtitle eq HardwareWizardKiller"
 )
