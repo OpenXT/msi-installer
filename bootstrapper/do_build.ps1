@@ -20,6 +20,7 @@
 # THE SOFTWARE.
 #
 
+$ScriptDir = Split-Path -parent $MyInvocation.MyCommand.Path
 Import-Module $ScriptDir\..\..\BuildSupport\invoke.psm1
 
 #Get parameters
