@@ -20,11 +20,15 @@
 # THE SOFTWARE.
 #
 
+$ScriptDir = Split-Path -parent $MyInvocation.MyCommand.Path
+Import-Module $ScriptDir\..\..\BuildSupport\invoke.psm1
+
 #Get parameters
 $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[$matches[1]] = $matches[2];}}
 $BuildType = $argtable["BuildType"]
 $CertName = $argtable["CertName"]
 $VerString = $argtable["VerString"]
+$signtool = $argtable["SignTool"]
 
 Push-Location msi-installer\bootstrapper
 makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
@@ -33,7 +37,7 @@ makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
 if ($BuildType -eq "Release")
 {
     Write-Host "Signing setup.exe"
-    signtool.exe sign /a /s my /n $CertName /t http://timestamp.verisign.com/scripts/timestamp.dll /d "XenClient Installer" setup.exe
+    Invoke-CommandChecked "Signing setup.exe" ($signtool+"\signtool.exe") sign /a /s my /n ('"'+$certname+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "XenClient Installer" setup.exe
 }
 
 Move-Item setup.exe ..\iso\windows\setup.exe -Force -Verbose
