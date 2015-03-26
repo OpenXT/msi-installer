@@ -28,7 +28,6 @@ $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[
 $BuildType = $argtable["BuildType"]
 $CertName = $argtable["CertName"]
 $VerString = $argtable["VerString"]
-$signtool = $argtable["SignTool"]
 
 Push-Location msi-installer\bootstrapper
 makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
