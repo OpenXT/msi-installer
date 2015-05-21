@@ -10,14 +10,14 @@
 <?endif?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" 
-           Name="$(var.Company) XenClient Tools"
+           Name="$(var.Company) OpenXT Tools"
            Language="1033" 
            Version="$(var.PRODUCT_VERSION)" 
            Manufacturer="$(var.Company)"
            UpgradeCode="0aa57b10-bd9f-44e5-8b87-27b7a8729b06">
     <Package Id="*" 
-             Keywords="XenClient, Installer" 
-             Description="$(var.Company) XenClient Tools Installer"
+             Keywords="OpenXT, Installer" 
+             Description="$(var.Company) OpenXT Tools Installer"
              Manufacturer="$(var.Company)"
              InstallerVersion="300" 
              Compressed="yes"
@@ -91,7 +91,7 @@
                DiskId="1" />
       <?endif ?>
     
-      <!-- XenGuestAgent (Citrix Xen Guest Services) -->
+      <!-- XenGuestAgent (OpenXT Xen Guest Services) -->
       <Merge Id="XenGuestAgentMSM"
              Language="1033"
              SourceFile=".\Modules\XenGuestAgent.msm"
@@ -100,14 +100,14 @@
 	  <!-- 32 Bit Prog Files folder -->
       <Directory Id="ProgramFilesFolder" Name="PFiles">
 
-		<!--%PROGRAMFILES%\Citrix-->
-        <Directory Id="INSTALLDIR" Name="Citrix">
+		<!--%PROGRAMFILES%\OpenXT-->
+        <Directory Id="INSTALLDIR" Name="OpenXT">
 		
 		  <!-- Registry Entries -->
 		  <Component Id="xensetup" Guid="{BBFD7B30-D93D-4fde-8A4C-3D3496F7A729}">
-		    <RegistryValue	Root='HKLM' Key='SOFTWARE\Citrix\XenTools'
+		    <RegistryValue	Root='HKLM' Key='SOFTWARE\OpenXT\XenTools'
 							Type='string' Name='Version' Value='$(var.PRODUCT_VERSION)' KeyPath='yes' />
-		    <RegistryValue	Root='HKLM' Key='SOFTWARE\Citrix\XenTools'
+		    <RegistryValue	Root='HKLM' Key='SOFTWARE\OpenXT\XenTools'
 							Type='string' Name='VT' Value='$(var.TAG)' />
 		  </Component>
 
@@ -115,21 +115,21 @@
 		  <?if $(var.Platform) = "x86"?>
             <Component Id="wlanprofLaunchKey" Guid="315F0396-1639-4753-A320-B16D07602E9F">
               <Condition>(VersionNT = 501 AND ServicePackLevel >= 3) OR (VersionNT >= 600)</Condition>
-              <RegistryValue Root='HKLM' Key='SOFTWARE\Citrix\XenClient\WlanProf'
+              <RegistryValue Root='HKLM' Key='SOFTWARE\OpenXT\OpenXT\WlanProf'
                            Type='string' Value="" KeyPath='yes' />
             </Component>
 		  <?else ?>
 	        <Component Id="wlanprofLaunchKey" Guid="7351F4C3-8F03-444b-8B15-EC0795E288E7">
             <Condition>VersionNT64</Condition>
-              <RegistryValue	Root='HKLM' Key='SOFTWARE\WOW6432Node\Citrix\XenClient\WlanProf'
+              <RegistryValue	Root='HKLM' Key='SOFTWARE\WOW6432Node\OpenXT\OpenXT\WlanProf'
 								Type='string' Value="" KeyPath='yes' />
             </Component>
           <?endif ?>
 		  
-		  <!--%PROGRAMFILES%\Citrix\XenTools-->
+		  <!--%PROGRAMFILES%\OpenXT\XenTools-->
           <Directory Id="XenTools" Name="XenTools">
             
-            <!-- %PROGRAMFILES%\Citrix\XenTools\XenClientGuestService -->
+            <!-- %PROGRAMFILES%\OpenXT\XenTools\OpenXTGuestService -->
             <Directory Id="XenClientGuestServiceDir" Name="XenClientGuestService">
               <Merge Id="UdbusBindingsInterfacesLibrariesInstallerMSM"
                      Language="1033"
@@ -153,13 +153,13 @@
               />
             </Directory><!--XenClientGuestService-->
           </Directory><!--XenTools-->
-        </Directory> <!--Citrix-->
+        </Directory> <!--OpenXT-->
       </Directory> <!--Program Files-->
 	</Directory> <!-- Install To Disk -->
     
     <!--Define XCT MSI Features-->
-    <Feature Id="XensetupDrivers" Title="XenClient Drivers &amp; Services" 
-             Description="Installs XenClient drivers, services and utilities" 
+    <Feature Id="XensetupDrivers" Title="OpenXT Drivers &amp; Services" 
+             Description="Installs OpenXT drivers, services and utilities" 
              Level="1" AllowAdvertise="no" InstallDefault="local" Display="expand">
      
 	  <!-- Registry Components -->
@@ -177,8 +177,8 @@
     </Feature>
 
 	<!-- Xen Switcher bar feature, can be disabled via command line parameter -->
-	<Feature Id="XenSwitcherBar" Title="XenClient Switcher Bar" 
-             Description="Installs XenClient Switcher Bar" 
+	<Feature Id="XenSwitcherBar" Title="OpenXT Switcher Bar" 
+             Description="Installs OpenXT Switcher Bar" 
              Level="1" AllowAdvertise="no" InstallDefault="local" Display="expand">
        <Condition Level="0">
           NOSWITCHERBAR = 1
@@ -190,8 +190,8 @@
     <Property Id="PROMPTROLLBACKCOST" Value="P" />
 
     <!-- Add / Remove Programs Info -->
-    <Property Id="ARPHELPLINK" Value="http://support.citrix.com" />
-    <Property Id="ARPURLINFOABOUT" Value="http://www.citrix.com" />
+    <Property Id="ARPHELPLINK" Value="http://openxt.org" />
+    <Property Id="ARPURLINFOABOUT" Value="http://openxt.org" />
     <Property Id="ARPNOREPAIR" Value="1" />
     <Property Id="ARPPRODUCTICON" Value="xen.ico" />
 

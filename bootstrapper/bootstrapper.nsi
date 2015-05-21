@@ -33,14 +33,14 @@
 !define MUI_UNICON ".\XenClient.ico"
 !define MUI_LICENSEPAGE_CHECKBOX
 !define MUI_WELCOMEFINISHPAGE_BITMAP ".\DialogInstall.bmp"
-!define MUI_PAGE_HEADER_TEXT "XenClient Tools Installer"
+!define MUI_PAGE_HEADER_TEXT "OpenXT Tools Installer"
 !define MUI_LICENSEPAGE_TEXT_TOP "Please Review the Terms below"
 
-!define ProductName "XenClient Tools"
-!define CompanyName "Citrix Systems Inc."
-!define LegalCopyright "Copyright (C) Citrix Systems Inc. 2013"
-!define UrlAbout "http://www.citrix.com"
-!define UrlUpdate "http://www.citrix.com"
+!define ProductName "OpenXT Tools"
+!define CompanyName "OpenXT"
+!define LegalCopyright ""
+!define UrlAbout "http://openxt.org"
+!define UrlUpdate "http://openxt.org"
 !define FileDescription "Installer"
 
 ;Just for safety, define a default version of 1.0.0 build #1
@@ -175,7 +175,7 @@ Var xensetup ; Partial uninstall with /rmXenSetupEXE
 section
 
   #We always want to put our files into the TEMP folder
-  SetOutPath $TEMP\Citrix ; Want to put our files in TEMP
+  SetOutPath $TEMP\OpenXT ; Want to put our files in TEMP
 
   ###############################
   ### Command Line Checks #######
@@ -233,7 +233,7 @@ section
   MessageBox MB_YESNO ".NET 4.0 is required by this software, do you wish to install .NET 4.0?" IDYES +2 IDNO +1
   Quit ; Bail as user said no
   File "..\iso\windows\dotNetFx40_Full_x86_x64.exe" ; Extract .NET
-  ExecWait '"$TEMP\Citrix\dotNetFx40_Full_x86_x64.exe"' ; Install .NET
+  ExecWait '"$TEMP\OpenXT\dotNetFx40_Full_x86_x64.exe"' ; Install .NET
   System::Call 'kernel32::GetModuleFileNameA(i 0, t .R0, i 1024) i r1' ; Get the path to our installer
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\RunOnce" "restartCitrixSetup"  "$\"$R0$\" /skipagreement" ; Continue install after reboot
   MessageBox MB_OK "System requires a restart before installation can continue. Click OK to restart the system now."
@@ -244,30 +244,30 @@ section
   
     ; Determine machine bitage and run the suitable MSI installer
     ${If} ${RunningX64}
-      File "..\installer\XenClientTools64.msi"
-      ExecWait 'msiexec /i "$TEMP\Citrix\XenClientTools64.msi" ARPSYSTEMCOMPONENT=1 /q /norestart /lvx* "$TEMP\Citrix\log_XenClientTools64.txt"'
+      File "..\installer\OpenXTTools64.msi"
+      ExecWait 'msiexec /i "$TEMP\OpenXT\OpenXTTools64.msi" ARPSYSTEMCOMPONENT=1 /q /norestart /lvx* "$TEMP\OpenXT\log_OpenXTTools64.txt"'
     ${Else}
-      File "..\installer\XenClientTools.msi"
-      ExecWait 'msiexec /i "$TEMP\Citrix\XenClientTools.msi" ARPSYSTEMCOMPONENT=1 /q /norestart /lvx* "$TEMP\Citrix\log_XenClientTools.txt"'
+      File "..\installer\OpenXTTools.msi"
+      ExecWait 'msiexec /i "$TEMP\OpenXT\OpenXTTools.msi" ARPSYSTEMCOMPONENT=1 /q /norestart /lvx* "$TEMP\OpenXT\log_OpenXTTools.txt"'
     ${EndIf}
 
     ; Run the drivers installer
     File ".\packages\xensetup.exe"
-    ExecWait '"$TEMP\Citrix\xensetup.exe" /S /norestart'
+    ExecWait '"$TEMP\OpenXT\xensetup.exe" /S /norestart'
     
     ; Copy ourselves (setup.exe) to the installation directory
     System::Call 'kernel32::GetModuleFileNameA(i 0, t .R0, i 1024) i r1'
     CopyFiles /SILENT '$R0' $INSTDIR
     
     ; Create Add Remove Programs registry entries
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "DisplayName" "Citrix XenClient Tools" ; Name
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "DisplayName" "OpenXT Tools" ; Name
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "DisplayIcon" "$INSTDIR\setup.exe" ; Icon
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "UninstallString" "$\"$INSTDIR\setup.exe$\" /uninstall" ; Uninstall command
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "QuietUninstallString" "$\"$INSTDIR\setup.exe$\" /uninstall /S" ; Silent Uninstall
     ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
     IntFmt $0 "0x%08X" $0
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "EstimatedSize" "$0" ; Estimated size
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "Publisher" "Citrix Systems Inc." ; Publisher
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "Publisher" "OpenXT" ; Publisher
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "NoModify" "1"
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "NoRepair" "1"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\XenClient" "DisplayVersion" ${VERSION}
@@ -295,7 +295,7 @@ section
     ; Remove all package management key entries
     DeleteRegKey HKLM "Software\Citrix\XTPackageManagement" ; Remove uninstall info from package management key
     
-    SetOutPath $TEMP\Citrix ; Restore outpath to TEMP
+    SetOutPath $TEMP\OpenXT ; Restore outpath to TEMP
     
   ; We've been asked to remove certain packages only
   partialUninstall:
@@ -303,7 +303,7 @@ section
     ;Essentially, use the MSI as a time buffer and hope that they all finish before the MSI's uninstall does
     IntCmp $xensetup 0 skipXenSetupUninstall ;Only uninstall xensetup.exe if told explicitly or told to do full uninstall
       File "..\bootstrapper\packages\xensetup.exe"
-      ExecWait '"$TEMP\Citrix\xensetup.exe" /S /norestart /uninstall'
+      ExecWait '"$TEMP\OpenXT\xensetup.exe" /S /norestart /uninstall'
       ; Decide whether we need to remove the package management key
       IntCmp $partial 0 +2
       DeleteRegKey HKLM "Software\Citrix\XTPackageManagement\XenSetupEXE" ; Remove uninstall info from package management key
@@ -311,11 +311,11 @@ section
     
     IntCmp $msi 0 skipMSIUninstall ;Only uninstall MSI if told explicitly or told to do full uninstall
       ${If} ${RunningX64}
-        File "..\installer\XenClientTools64.msi"
-        ExecWait 'msiexec /uninstall "$TEMP\Citrix\XenClientTools64.msi" /q /norestart /lvx* "$TEMP\Citrix\log_un_XenClientTools64.txt"'
+        File "..\installer\OpenXTTools64.msi"
+        ExecWait 'msiexec /uninstall "$TEMP\OpenXT\OpenXTTools64.msi" /q /norestart /lvx* "$TEMP\OpenXT\log_un_OpenXTTools64.txt"'
       ${Else}
-        File "..\installer\XenClientTools.msi"
-        ExecWait 'msiexec /uninstall "$TEMP\Citrix\XenClientTools.msi" /q /norestart /lvx* "$TEMP\Citrix\log_un_XenClientTools.txt"'
+        File "..\installer\OpenXTTools.msi"
+        ExecWait 'msiexec /uninstall "$TEMP\OpenXT\OpenXTTools.msi" /q /norestart /lvx* "$TEMP\OpenXT\log_un_OpenXTTools.txt"'
       ${EndIf}
       ; Decide whether we need to remove the package management key
       IntCmp $partial 0 +2
