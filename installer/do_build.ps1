@@ -33,6 +33,7 @@ $BuildTag = $argtable["BuildTag"]
 $VerString = $argtable["VerString"]
 $CertName = $argtable["CertName"]
 $Company = $argtable["CompanyName"]
+$SHA1Thumb = $argtable["SHA1Thumb"].replace(" ","")
 $signtool = $argtable["SignTool"]
 
 $env:SIGNTOOLPATH = ($signtool+"\signtool.exe")
@@ -42,10 +43,17 @@ Invoke-CommandChecked "32 bit candle" ($env:WIX + "bin\candle.exe") installer.wx
 Invoke-CommandChecked "32 bit light" ($env:WIX + "bin\light.exe") -sw1076 -ext WixUIExtension XenClientTools.wixobj -out OpenXTTools.msi -cc cache -reusecab
 Invoke-CommandChecked "64 bit candle" ($env:WIX + "bin\candle.exe") installer.wxs -dPlatform="x64" ("-dCompany=" + $Company) ("-dPRODUCT_VERSION=" + $VerString) ("-dTAG=" + $BuildTag) -out XenClientTools64.wixobj
 Invoke-CommandChecked "64 bit light" ($env:WIX + "bin\light.exe") -sw1076 -ext WixUIExtension XenClientTools64.wixobj -out OpenXTTools64.msi -cc cache -reusecab
-Invoke-CommandChecked "sign 32 bit MSI" ($signtool+"\signtool.exe") sign /a /s my /n ('"'+$CertName+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "$Company OpenXT Tools Installer" OpenXTTools.msi
-Invoke-CommandChecked "sign 64 bit MSI" ($signtool+"\signtool.exe") sign /a /s my /n ('"'+$CertName+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "$Company OpenXT Tools Installer" OpenXTTools64.msi
+
+Invoke-CommandChecked "sign 32 bit MSI with SHA1" ($signtool+"\signtool.exe") sign /sha1 $SHA1Thumb /fd sha1 /a /s my /n ('"'+$CertName+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "$Company OpenXT Tools Installer" OpenXTTools.msi
+Invoke-CommandChecked "sign 64 bit MSI with SHA1" ($signtool+"\signtool.exe") sign /sha1 $SHA1Thumb /fd sha1 /a /s my /n ('"'+$CertName+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "$Company OpenXT Tools Installer" OpenXTTools64.msi
+
+
 # Copy Signer's Certificate to ISO
-$CertOutPath = (Convert-Path ..\iso\windows\SupportFiles\) + "ToolsSigner.cer"
-$CertBytes = (dir cert:\CurrentUser\My | where {$_.subject.StartsWith("CN=$CertName")}).export("Cert")
-[system.IO.file]::WriteAllBytes("$CertOutPath",$CertBytes)
+$certificates = (dir cert:\CurrentUser\My | where {$_.subject.StartsWith("CN=$CertName")})
+foreach ($certificate in $certificates)
+{
+    $CertOutPath = (Convert-Path ..\iso\windows\SupportFiles\) +$CertName+"_"+ $certificate.SignatureAlgorithm.FriendlyName + ".cer"
+    $CertBytes = $certificate.export("Cert")
+    [system.IO.file]::WriteAllBytes("$CertOutPath",$CertBytes)
+}
 

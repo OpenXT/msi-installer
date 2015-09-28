@@ -22,34 +22,36 @@ REM
 
 @echo off
 reg query "HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" /v "Install"
-if %ERRORLEVEL% NEQ 0 (
-echo .NET 4.0 could not be found on this machine, please install .NET 4.0 and reboot before running this script
-goto :EOF
+IF %ERRORLEVEL% NEQ 0 (
+    echo .NET 4.0 could not be found on this machine, please install .NET 4.0 and reboot before running this script
+    goto :EOF
 )
 
 echo Microsoft .NET 4.0 found
 echo Administrative permissions are required. Checking permissions.
 net session > nul 2>&1
-if %ERRORLEVEL% == 0 (
-echo Success: Permissions confirmed
+IF %ERRORLEVEL% == 0 (
+    echo Success: Permissions confirmed
 ) else (
-echo Failure: Necessary permissions are not available
-goto :EOF
+    echo Failure: Necessary permissions are not available
+    goto :EOF
 )
 
 ver | find " 5.1" > nul
 IF %ERRORLEVEL% == 0 (set XP=1) ELSE (set XP=0)
 
 IF %XP% == 0 (
-certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\ToolsSigner.cer"
+    FOR /F "delims=" %%I in (dir "%~dp0SupportFiles\*.cer") do (
+        certutil -addstore -enterprise -f "TrustedPublisher" "%~dp0SupportFiles\%%I"
+    )
 ) ELSE (
-start "HardwareWizardKiller" /min cscript "%~dp0SupportFiles\WizardKiller.vbs"
+    start "HardwareWizardKiller" /min cscript "%~dp0SupportFiles\WizardKiller.vbs"
 )
 
 IF "%2"=="" (
-"%~dp0setup.exe" /S /norestart
+    "%~dp0setup.exe" /S /norestart
 ) ELSE (
-"%~dp0setup.exe" /S /norestart /log %2
+    "%~dp0setup.exe" /S /norestart /log %2
 )
 
 set RESTART=1
@@ -57,10 +59,12 @@ IF "%1" == "/DR" set RESTART=0
 IF %ERRORLEVEL% NEQ 0 set RESTART=0
 
 IF %XP% == 0 (
-FOR /F "Tokens=3" %%I in ('certutil -dump "%~dp0SupportFiles\ToolsSigner.cer" ^| findstr "Serial Number"') do SET SERIAL=%%I
-certutil -delstore -enterprise "TrustedPublisher" %SERIAL%
+    FOR /F "delims=" %%I in (dir "%~dp0SupportFiles\*.cer") do (
+        FOR /F "Tokens=3" %%S in ('certutil -dump "%~dp0SupportFiles\%%I" ^| findstr "Serial Number"') do SET SERIAL=%%S
+        certutil -delstore -enterprise "TrustedPublisher" %SERIAL%
+    )
 ) ELSE (
-taskkill.exe /f /fi "Windowtitle eq HardwareWizardKiller"
+    taskkill.exe /f /fi "Windowtitle eq HardwareWizardKiller"
 )
 
 IF %RESTART% == 1 shutdown.exe /r /t 00
