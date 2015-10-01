@@ -27,6 +27,8 @@ Import-Module $ScriptDir\..\..\BuildSupport\invoke.psm1
 $args | Foreach-Object {$argtable = @{}} {if ($_ -Match "(.*)=(.*)") {$argtable[$matches[1]] = $matches[2];}}
 $BuildType = $argtable["BuildType"]
 $CertName = $argtable["CertName"]
+$SHA1Thumb = $argtable["SHA1Thumb"].replace(" ","")
+$SHA256Thumb = $argtable["SHA256Thumb"].replace(" ","")
 $VerString = $argtable["VerString"]
 $signtool = $argtable["SignTool"]
 
@@ -37,7 +39,11 @@ makensis ("/DVERSION=" + $VerString) ./bootstrapper.nsi
 if ($BuildType -eq "Release")
 {
     Write-Host "Signing setup.exe"
-    Invoke-CommandChecked "Signing setup.exe" ($signtool+"\signtool.exe") sign /a /s my /n ('"'+$certname+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "OpenXT Tools Installer" setup.exe
+    Invoke-CommandChecked "Signing setup.exe" ($signtool+"\signtool.exe") sign /sha1 $SHA1Thumb /fd sha1 /a /s my /n ('"'+$certname+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "OpenXT Tools Installer" setup.exe
+    if ($SHA256Thumb)
+    {
+        Invoke-CommandChecked "Signing setup.exe" ($signtool+"\signtool.exe") sign /sha1 $SHA256Thumb /fd sha256 /as /a /s my /n ('"'+$certname+'"') /tr http://timestamp.geotrust.com/tsa /d "OpenXT Tools Installer" setup.exe
+    }
 }
 
 Move-Item setup.exe ..\iso\windows\setup.exe -Force -Verbose
