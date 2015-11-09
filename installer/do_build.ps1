@@ -46,6 +46,5 @@ Invoke-CommandChecked "sign 32 bit MSI" ($signtool+"\signtool.exe") sign /a /s m
 Invoke-CommandChecked "sign 64 bit MSI" ($signtool+"\signtool.exe") sign /a /s my /n ('"'+$CertName+'"') /t http://timestamp.verisign.com/scripts/timestamp.dll /d "$Company OpenXT Tools Installer" OpenXTTools64.msi
 # Copy Signer's Certificate to ISO
 $CertOutPath = (Convert-Path ..\iso\windows\SupportFiles\) + "ToolsSigner.cer"
-$CertBytes = (dir cert:\CurrentUser\My | where {$_.subject.StartsWith("CN=$CertName")}).export("Cert")
+$CertBytes = (dir cert:\CurrentUser\My | where {$_.subject.StartsWith("CN=") -And $_.subject.Contains("$CertName")}).export("Cert")
 [system.IO.file]::WriteAllBytes("$CertOutPath",$CertBytes)
-
