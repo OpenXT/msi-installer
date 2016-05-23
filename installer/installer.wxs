@@ -77,25 +77,6 @@
     <!--Define XCI installation directory-->
     <Directory Id="TARGETDIR" Name="SourceDir">
 
-      <!--Merge Modules that define layout within themselves -->
-      <!-- XenGuestPlugin -->
-      <?if $(var.Platform) = "x86"?>
-        <Merge Id="XenGuestPlugin" 
-               Language="1033" 
-               SourceFile=".\Modules\XenGuestPlugin.msm" 
-               DiskId="1" />
-      <?else ?>
-        <Merge Id="XenGuestPlugin" 
-               Language="1033" 
-               SourceFile=".\Modules\XenGuestPlugin64.msm" 
-               DiskId="1" />
-      <?endif ?>
-    
-      <!-- XenGuestAgent (OpenXT Xen Guest Services) -->
-      <Merge Id="XenGuestAgentMSM"
-             Language="1033"
-             SourceFile=".\Modules\XenGuestAgent.msm"
-             DiskId="1" />
 
 	  <!-- 32 Bit Prog Files folder -->
       <Directory Id="ProgramFilesFolder" Name="PFiles">
@@ -129,29 +110,6 @@
 		  <!--%PROGRAMFILES%\OpenXT\XenTools-->
           <Directory Id="XenTools" Name="XenTools">
             
-            <!-- %PROGRAMFILES%\OpenXT\XenTools\OpenXTGuestService -->
-            <Directory Id="XenClientGuestServiceDir" Name="XenClientGuestService">
-              <Merge Id="UdbusBindingsInterfacesLibrariesInstallerMSM"
-                     Language="1033"
-                     SourceFile=".\Modules\Udbus.Bindings.Interfaces.Libraries.Installer.msm"
-                     DiskId="1"
-              />
-              <Merge Id="UdbusBindingsClientLibrariesInstallerMSM"
-                     Language="1033"
-                     SourceFile=".\Modules\Udbus.Bindings.Client.Libraries.Installer.msm"
-                     DiskId="1"
-              />
-              <Merge Id="UdbusBindingsServiceLibrariesInstallerMSM"
-                     Language="1033"
-                     SourceFile=".\Modules\Udbus.Bindings.Service.Libraries.Installer.msm"
-                     DiskId="1"
-              />
-              <Merge Id="XenClientGuestService"
-                     Language="1033"
-                     SourceFile=".\Modules\XenClientGuestService.msm"
-                     DiskId="1"
-              />
-            </Directory><!--XenClientGuestService-->
           </Directory><!--XenTools-->
         </Directory> <!--OpenXT-->
       </Directory> <!--Program Files-->
@@ -166,25 +124,7 @@
 	  <ComponentRef Id="xensetup" />
 	  <ComponentRef Id="wlanprofLaunchKey" />
 
-	  <!-- XenGuest Graphical Agent -->
-	  <MergeRef Id ="XenGuestAgentMSM"/>
-
-      <!-- XenClientGuestService modules -->
-      <MergeRef Id="UdbusBindingsInterfacesLibrariesInstallerMSM"/>
-      <MergeRef Id="UdbusBindingsClientLibrariesInstallerMSM"/>
-      <MergeRef Id="UdbusBindingsServiceLibrariesInstallerMSM"/>
-      <MergeRef Id="XenClientGuestService"/>
     </Feature>
-
-	<!-- Xen Switcher bar feature, can be disabled via command line parameter -->
-	<Feature Id="XenSwitcherBar" Title="OpenXT Switcher Bar" 
-             Description="Installs OpenXT Switcher Bar" 
-             Level="1" AllowAdvertise="no" InstallDefault="local" Display="expand">
-       <Condition Level="0">
-          NOSWITCHERBAR = 1
-       </Condition>
-	   <MergeRef Id ="XenGuestPlugin"/>
-	</Feature>
 
 	<!-- Informs the user if there is not enough disk space for the install -->
     <Property Id="PROMPTROLLBACKCOST" Value="P" />
