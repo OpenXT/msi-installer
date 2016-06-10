@@ -99,29 +99,6 @@ Function licenseSkip
   Pop $R0
 FunctionEnd
 
-; Looks in the registry to see whether .NET 4.0 is installed
-; Returns 1 if it is in $R0
-; Returns 0 if it is not in $R0
-Function IsDotNetInstalled
-  push $0
-
-  ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" "Install" ; Attempt to read the registry key
-  StrCmp $0 1 +1 +3 ; Check that .NET 4.0 is installed
-  StrCpy $R0 1 ; Set .NET 4.0 is installed
-  Goto IsDotNetInstalledEnd ; Skip to end of function
-
-  ClearErrors ; There was an error flag set we should clear from ReadRegDWORD
-  StrCmp $0 "" +3 +1 ; Check that the error is a key could not be found error
-  MessageBox MB_OK "The key HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\Install is not of type DWORD. Installer can not reliably determine the presence of .NET 4.0 of this machine, aborting." ; Something is hideously wrong in the registry...
-  Abort
-
-  StrCpy $R0 0 ; Set .NET 4.0 is not installed
-
-  IsDotNetInstalledEnd:
-    pop $0
- 
-FunctionEnd
-
 ; $0 - location of manager, $1 - key counter, $2 - key name, $3 - key value, $4 - parameters
 Function PrepareMachine
 
@@ -224,20 +201,6 @@ section
   ###############################
   ### Install Mode ##############
   ###############################
-  
-  Call IsDotNetInstalled ; Find out if .NET 4.0 is installed
-  StrCmp $R0 0 0 DotNetOK ; Decide whether we need to run the .NET installer
-  IfSilent +1 +2 ; Detect if running in silent mode, if true bail out of the install as .NET 4.0 is not installed, else go to give user a choice
-  Quit
-  # Give the user a choice about whether they want to install .NET even though it's mandatory
-  MessageBox MB_YESNO ".NET 4.0 is required by this software, do you wish to install .NET 4.0?" IDYES +2 IDNO +1
-  Quit ; Bail as user said no
-  File "..\iso\windows\dotNetFx40_Full_x86_x64.exe" ; Extract .NET
-  ExecWait '"$TEMP\OpenXT\dotNetFx40_Full_x86_x64.exe"' ; Install .NET
-  System::Call 'kernel32::GetModuleFileNameA(i 0, t .R0, i 1024) i r1' ; Get the path to our installer
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\RunOnce" "restartCitrixSetup"  "$\"$R0$\" /skipagreement" ; Continue install after reboot
-  MessageBox MB_OK "System requires a restart before installation can continue. Click OK to restart the system now."
-  Reboot ; Reboot after install
     
   DotNetOK:
     Call PrepareMachine
